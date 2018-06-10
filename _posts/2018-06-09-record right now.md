@@ -2,7 +2,7 @@
 layout: post
 title:  "记录现在的自己"
 date:   2018-06-09 17:00:00 +0800
-categories: jekyll update
+categories: jekyll aboutme
 ---
 
 ## 技能
