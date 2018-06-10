@@ -1,8 +1,9 @@
 ---
-layout: post
-title:  "Java 采用Rest Api 请求 ElasticSearch"
+layout: splash
+title:  "Java 利用Rest Api 请求 ElasticSearch"
 date:   2018-06-10 00:00:00 +0800
 categories: jekyll elasticsearch
+excerpt : "调研 Java 利用用Rest Api 请求 ElasticSearch 的方法"
 ---
 
 近期在调研全文搜索的选型，接触了ElasticSearch,接触了四种Java请求ElasticSearch的方式:
@@ -71,13 +72,13 @@ categories: jekyll elasticsearch
 
 #### 2、初始化
 首先是构建**RestClient**
-```
+```java
 RestClient lowLevelRestClient = RestClient.builder(
       new HttpHost("localhost", 9200, "http"),
       new HttpHost("localhost", 9201, "http")).build();
 ```
 其中builder还可设置MaxRetryTimeout、FailureListener、RequestConfigCallback、HttpClientConfigCallback，具体请查看*[参考地址](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/index.html)*
-```
+```java
 RestHighLevelClient client = new RestHighLevelClient(lowLevelRestClient);
 ```
 #### 3、支持的操作
@@ -102,7 +103,7 @@ RestHighLevelClient 支持如下几类API
 #### 4、示例
 **Index**
 * 构建Index 请求
-```
+```java
 IndexRequest request = new IndexRequest(
       "posts",
       "doc",  
@@ -117,7 +118,7 @@ request.source(jsonString, XContentType.JSON);
 其中request.source(),除Json字符串外，还支持Map、XContentBuilder 、Key-Value键值对.
 
 * Index 请求选项(可选)
-```
+```java
 request.routing("routing");
 request.parent("parent");
 request.timeout(TimeValue.timeValueSeconds(1)); 或者 request.timeout("1s");
@@ -128,10 +129,10 @@ request.opType(DocWriteRequest.OpType.CREATE); 或者 request.opType("create");
 request.setPipeline("pipeline");
 ```
 * 执行请求
-```
-  同步请求：
+```java
+  //同步请求：
   IndexResponse indexResponse = client.index(request);
-  异步请求：
+  //异步请求：
   client.indexAsync(request, new ActionListener<IndexResponse>() {
     @Override
     public void onResponse(IndexResponse indexResponse) {}
@@ -141,7 +142,7 @@ request.setPipeline("pipeline");
   });
 ```
 * 结果处理(示例)
-```
+```java
   String index = indexResponse.getIndex();
   String type = indexResponse.getType();
   String id = indexResponse.getId();
@@ -163,12 +164,12 @@ request.setPipeline("pipeline");
 ```
 **GET**
 * 构建Get 请求
-```
-GetRequest getRequest = new GetRequest("posts","doc", "1");
-其中posts -> _index 索引; doc -> _type类型; 1 -> _id 文档ID
+```java
+  GetRequest getRequest = new GetRequest("posts","doc", "1");
+  //其中posts -> _index 索引; doc -> _type类型; 1 -> _id 文档ID
 ```  
 * GET 请求选项(可选)
-```
+```java
   request.fetchSourceContext(new FetchSourceContext(false));
   String[] includes = new String[]{"message", "*Date"};
   String[] excludes = Strings.EMPTY_ARRAY;
@@ -188,8 +189,8 @@ GetRequest getRequest = new GetRequest("posts","doc", "1");
   request.versionType(VersionType.EXTERNAL);
 ```  
 * GET执行请求
-```
-  同步请求(可能的异常处理)：
+```java
+  //同步请求(可能的异常处理)：
   GetRequest request = new GetRequest("does_not_exist", "doc", "1").version(2);
   try {
       GetResponse getResponse = client.get(request);
@@ -201,7 +202,7 @@ GetRequest getRequest = new GetRequest("posts","doc", "1");
         //TODO
     }
   }
-  异步请求：
+  // 异步请求：
   client.getAsync(request, new ActionListener<GetResponse>() {
     @Override
     public void onResponse(GetResponse getResponse) {}
@@ -211,7 +212,7 @@ GetRequest getRequest = new GetRequest("posts","doc", "1");
     });
 ```  
 * 结果处理(示例)
-```
+```java
   String index = getResponse.getIndex();
   String type = getResponse.getType();
   String id = getResponse.getId();
